@@ -64,9 +64,8 @@ async def update_icon(icon):
     while True:
         uptime = await check_snmp_status()
         if uptime is not None:
-            print(f"uptime {uptime}")
             # Convertir les ticks en secondes
-            uptime_seconds = uptime // 10  # Chaque tick est 10 ms
+            uptime_seconds = uptime // 100  # Chaque tick est 100 ms
             uptime_display = f'Uptime: {uptime_seconds // 3600}h {(uptime_seconds % 3600) // 60}m'
             icon.icon = create_image('green')
             icon.title = uptime_display  # Met à jour le tooltip avec l'uptime
