@@ -8,6 +8,7 @@ import asyncio
 
 # Adresse MAC du serveur pour envoyer le paquet Wake-on-LAN
 SERVER_MAC_ADDRESS = 'D0:50:99:D3:47:F7'
+wol_sent = False
 
 # Fonction pour créer une icône de couleur
 def create_image(color):
@@ -41,8 +42,22 @@ async def check_snmp_status():
 
 # Fonction pour envoyer une requête Wake-on-LAN
 def wake_on_lan(icon, item):
-    send_magic_packet(SERVER_MAC_ADDRESS)
-    print(f"Sent Wake-on-LAN packet to {SERVER_MAC_ADDRESS}")
+    global wol_sent
+    if not wol_sent:
+        send_magic_packet(SERVER_MAC_ADDRESS)
+        wol_sent = True
+        icon.icon = create_image('orange')
+        icon.update_menu()
+
+        # Lancer un thread pour restaurer l'état après 60 secondes
+        threading.Thread(target=restore_after_wol, args=(icon,)).start()
+
+# Fonction pour restaurer l'icône et réactiver l'option WOL après 30 secondes
+def restore_after_wol(icon):
+    global wol_sent
+    asyncio.run(asyncio.sleep(60))  # Attendre 60 secondes
+    wol_sent = False  # Réactiver l'option WOL
+    asyncio.run(update_icon(icon))  # Mettre à jour l'icône et l'état du serveur        
 
 # Fonction de mise à jour de l'icône dans la barre des tâches
 async def update_icon(icon):
@@ -57,10 +72,10 @@ async def update_icon(icon):
             icon.title = uptime_display  # Met à jour le tooltip avec l'uptime
             icon.menu = Menu(MenuItem('Quitter', quit_app))  # Menu par défaut quand le serveur est en ligne
         else:
-            icon.icon = create_image('red')
+            icon.icon = create_image('orange' if wol_sent else 'red')
             icon.title = "Server Offline"  # Message d'erreur si le serveur est hors ligne
             icon.menu = Menu(
-                MenuItem('Allumer', wake_on_lan),
+                MenuItem('Allumer', wake_on_lan, enabled=not wol_sent),
                 Menu.SEPARATOR,
                 MenuItem('Quitter', quit_app)
             )
