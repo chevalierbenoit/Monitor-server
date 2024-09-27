@@ -1,8 +1,13 @@
 from pysnmp.hlapi.v3arch.asyncio import *
 from pystray import Icon, Menu, MenuItem
 from PIL import Image, ImageDraw
+from wakeonlan import send_magic_packet
 import threading
 import asyncio
+
+
+# Adresse MAC du serveur pour envoyer le paquet Wake-on-LAN
+SERVER_MAC_ADDRESS = 'D0:50:99:D3:47:F7'
 
 # Fonction pour créer une icône de couleur
 def create_image(color):
@@ -34,6 +39,11 @@ async def check_snmp_status():
         uptime_ticks = var_binds[0][1]  # La valeur est le deuxième élément du tuple
         return uptime_ticks  # Retourne les ticks d'uptime
 
+# Fonction pour envoyer une requête Wake-on-LAN
+def wake_on_lan(icon, item):
+    send_magic_packet(SERVER_MAC_ADDRESS)
+    print(f"Sent Wake-on-LAN packet to {SERVER_MAC_ADDRESS}")
+
 # Fonction de mise à jour de l'icône dans la barre des tâches
 async def update_icon(icon):
     while True:
@@ -45,11 +55,21 @@ async def update_icon(icon):
             uptime_display = f'Uptime: {uptime_seconds // 3600}h {(uptime_seconds % 3600) // 60}m'
             icon.icon = create_image('green')
             icon.title = uptime_display  # Met à jour le tooltip avec l'uptime
+            icon.menu = Menu(MenuItem('Quitter', quit_app))  # Menu par défaut quand le serveur est en ligne
         else:
             icon.icon = create_image('red')
             icon.title = "Server Offline"  # Message d'erreur si le serveur est hors ligne
+            icon.menu = Menu(
+                MenuItem('Allumer', wake_on_lan),
+                Menu.SEPARATOR,
+                MenuItem('Quitter', quit_app)
+            )
 
         await asyncio.sleep(10)  # Vérifier toutes les 10 secondes
+
+# Fonction pour quitter l'application
+def quit_app(icon, item):
+    icon.stop()
 
 # Fonction de démarrage de l'icône
 def setup(icon):
@@ -58,12 +78,8 @@ def setup(icon):
     loop = asyncio.new_event_loop()
     threading.Thread(target=loop.run_until_complete, args=(update_icon(icon),)).start()
 
-
-# Menu contextuel (option pour quitter)
-menu = Menu(MenuItem('Quitter', lambda icon: icon.stop()))
-
 # Créer l'icône rouge par défaut
-icon = Icon("SNMP Status", create_image('red'), menu=menu)
+icon = Icon("SNMP Status", create_image('red'))
 
 # Démarrage de l'icône dans la barre des tâches
 icon.run(setup)
