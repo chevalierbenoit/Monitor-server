@@ -6,7 +6,6 @@ import config
 
 # Fonction pour vérifier l'état du serveur via SNMP
 async def check_snmp_status():
-    print("Vérification de l'état du serveur via SNMP...")
     transport_target = await UdpTransportTarget.create((config.server_ip_address, 161))
     
     error_indication, error_status, error_index, var_binds = await getCmd(

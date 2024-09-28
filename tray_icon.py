@@ -24,12 +24,7 @@ def stop_icon(monitor):
 def setup_tray_icon():
     monitor = ServerMonitor()
     icon = Icon("SNMP Status", icon=create_image('red'))
-    icon.menu = Menu(
-        MenuItem('Allumer', lambda: wake_on_lan(monitor)),
-        MenuItem('Configuration', open_config),
-        Menu.SEPARATOR,
-        MenuItem('Quitter', quit_app(monitor))
-    )
+    icon.menu = update_icon_menu(monitor)
     monitor.set_icon(icon)
 
     # Démarrage de la tâche asynchrone dans un thread séparé
@@ -44,6 +39,7 @@ async def update_icon(monitor):
 
     while True:
         uptime = await check_snmp_status()
+        icon = monitor.get_icon()
 
         # Si l'applicatoire est en cours d'arrêt, on arrête la boucle
         if quit_applications:
@@ -53,9 +49,22 @@ async def update_icon(monitor):
             uptime_seconds = uptime // 100
             uptime_display = f'Uptime: {uptime_seconds // 3600}h {(uptime_seconds % 3600) // 60}m'
             monitor.set_status(ServerStatus.ON)
-            monitor.get_icon().title = uptime_display
+            icon.menu = update_icon_menu(monitor)
+            icon.title = uptime_display
         else:
             if monitor.get_status() != ServerStatus.STARTING:
-                monitor.set_status(ServerStatus.OFF)
+                if monitor.get_status() != ServerStatus.OFF:
+                    monitor.set_status(ServerStatus.OFF)
+                    icon.menu = update_icon_menu(monitor)
 
-        await asyncio.sleep(10)  # Vérifier toutes les 10 secondes        
+        await asyncio.sleep(10)  # Vérifier toutes les 10 secondes
+
+def update_icon_menu(monitor):
+    menu = Menu(
+        MenuItem('Allumer', lambda: wake_on_lan(monitor), enabled=monitor.get_status() == ServerStatus.OFF),
+        MenuItem('Configuration', open_config),
+        Menu.SEPARATOR,
+        MenuItem('Quitter', quit_app(monitor))
+    )
+
+    return menu        
