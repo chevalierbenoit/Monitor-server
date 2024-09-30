@@ -4,8 +4,7 @@ import config
 # Fonction pour ouvrir la fenêtre de configuration
 def open_config():
     def save_config():
-        config.set_server_ip(ip_entry.get())
-        config.set_server_mac(mac_entry.get())
+        config.write_config(ip_entry.get(),mac_entry.get())
         print(f"Nouvelle configuration - IP: {config.server_ip_address}, MAC: {config.server_mac_address}")
         config_window.destroy()
 

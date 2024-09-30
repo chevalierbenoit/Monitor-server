@@ -6,7 +6,7 @@ from server_monitor import ServerStatus, ServerMonitor
 
 # Fonction pour envoyer une requête Wake-on-LAN
 def wake_on_lan(monitor):
-    send_magic_packet(config.server_mac_address)
+    send_magic_packet(config.get_server_mac())
     monitor.set_status(ServerStatus.STARTING)
     
     # Restaurer l'icône après 60 secondes
