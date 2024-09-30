@@ -1,6 +1,5 @@
 from wakeonlan import send_magic_packet
 import asyncio
-from icon_utils import create_image
 import config
 from server_monitor import ServerStatus, ServerMonitor
 

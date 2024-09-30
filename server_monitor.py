@@ -1,5 +1,5 @@
 from enum import Enum
-from icon_utils import create_image
+from icon_utils import create_cpu_image
 
 class ServerStatus(Enum):
     ON = "Allumé"
@@ -27,11 +27,11 @@ class ServerMonitor():
     
     def update_icon(self):
         if self.current_status == ServerStatus.ON:
-            self.current_icon.icon = create_image('green')
+            self.current_icon.icon = create_cpu_image('#32CD32')
             self.current_icon.title = "Serveur Allumé"
         elif self.current_status == ServerStatus.OFF:
-            self.current_icon.icon = create_image('red')
+            self.current_icon.icon = create_cpu_image('#FF0000')
             self.current_icon.title = "Serveur Éteint"
         elif self.current_status == ServerStatus.STARTING:
-            self.current_icon.icon = create_image('orange')
+            self.current_icon.icon = create_cpu_image('#FFD700')
         self.current_icon.title = "Serveur en cours d'allumage"

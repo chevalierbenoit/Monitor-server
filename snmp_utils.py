@@ -1,7 +1,6 @@
 import asyncio
 from pysnmp.hlapi.asyncio import *
 from PIL import Image, ImageDraw
-from icon_utils import create_image
 import config
 
 # Fonction pour vérifier l'état du serveur via SNMP

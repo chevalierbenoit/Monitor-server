@@ -1,8 +1,7 @@
 from pystray import Icon, Menu, MenuItem
-from PIL import Image, ImageDraw
 from config_window import open_config
 from wol_utils import wake_on_lan
-from icon_utils import create_image
+from icon_utils import create_cpu_image
 from server_monitor import ServerStatus,ServerMonitor
 from snmp_utils import check_snmp_status
 import threading
@@ -23,7 +22,7 @@ def stop_icon(monitor):
 # Fonction pour configurer l'icône et les menus contextuels
 def setup_tray_icon():
     monitor = ServerMonitor()
-    icon = Icon("SNMP Status", icon=create_image('red'))
+    icon = Icon("SNMP Status", icon=create_cpu_image('#87CEFA'), title="Initialisation...")
     icon.menu = update_icon_menu(monitor)
     monitor.set_icon(icon)
 
