@@ -1,4 +1,5 @@
 from PIL import Image, ImageColor
+import os
 
 def change_image_color(image_path, color):
     # Charger l'image PNG
@@ -21,4 +22,5 @@ def change_image_color(image_path, color):
 
 def create_cpu_image(html_color):
     color = ImageColor.getrgb(html_color)
-    return change_image_color("img/cpu.png", color) 
+    image_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "img", "cpu.png")
+    return change_image_color(image_path, color) 

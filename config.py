@@ -1,7 +1,8 @@
 import configparser
+import os
 
 # Chemin du fichier de configuration
-CONFIG_FILE = 'config.ini'
+CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.ini")
 # Variables globales pour l'adresse IP et l'adresse MAC
 server_ip_address = None
 server_mac_address = None
